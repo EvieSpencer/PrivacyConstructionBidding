@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Construction Bidding Platform</title>
+    <meta name="description" content="Secure and confidential construction project bidding platform using FHE technology">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #00d4ff;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        .card h2::before {
+            content: "🏗️";
+            margin-right: 12px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: #fafafa;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00b4d8, #00d4ff);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 8px 8px 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 140px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+            background: linear-gradient(135deg, #0096c7, #00b4d8);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #48cae4, #90e0ef);
+        }
+
+        .btn.secondary:hover {
+            background: linear-gradient(135deg, #00b4d8, #48cae4);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e53e3e, #fc8181);
+        }
+
+        .btn.danger:hover {
+            background: linear-gradient(135deg, #c53030, #e53e3e);
+        }
+
+        .status {
+            padding: 16px;
+            border-radius: 12px;
+            margin: 16px 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #b8dacc;
+        }
+
+        .status.error {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+            border: 1px solid #f1b0b7;
+        }
+
+        .status.info {
+            background: linear-gradient(135deg, #cce7ff, #9fdbff);
+            color: #004085;
+            border: 1px solid #9fdbff;
+        }
+
+        .status.warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .project-item {
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        }
+
+        .project-item:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .project-item h3 {
+            color: #2d3748;
+            margin-bottom: 16px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .project-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .meta-item {
+            background: linear-gradient(145deg, #f7fafc, #edf2f7);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        .meta-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-top: 6px;
+            word-break: break-all;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            font-size: 14px;
+        }
+
+        .connected {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+        }
+
+        .disconnected {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+        }
+
+        .badge.closed {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+        }
+
+        .badge.ended {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+
+        .contract-info {
+            background: linear-gradient(145deg, #caf0f8, #ade8f4);
+            border: 2px solid #00d4ff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .contract-address {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #023e8a;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .connection-status {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+        }
+
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Privacy Construction Bidding</h1>
+            <p>Secure and Confidential Project Bidding Platform with FHE Technology</p>
+        </div>
+
+        <div class="connection-status" id="connectionStatus">
+            <span class="disconnected">🔄 Loading...</span>
+        </div>
+
+        <div class="contract-info">
+            <div style="margin-bottom: 8px; font-weight: 600; color: #023e8a;">Smart Contract Address</div>
+            <div class="contract-address">0xc38328233d44dF9C3e9C60f6bA7C0eDAbD3F632a</div>
+        </div>
+
+        <div class="grid">
+            <!-- Connect Wallet Section -->
+            <div class="card">
+                <h2 style="--emoji: '🔐';">🔐 Wallet Connection</h2>
+                <div id="walletSection">
+                    <button class="btn" onclick="connectWallet()">Connect MetaMask</button>
+                    <div id="walletInfo" class="hidden">
+                        <div class="status info">
+                            <div><strong>Account:</strong> <span id="accountAddress"></span></div>
+                            <div><strong>Network:</strong> <span id="networkName"></span></div>
+                            <div><strong>Balance:</strong> <span id="accountBalance"></span> ETH</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contract Status -->
+            <div class="card">
+                <h2>📋 Contract Status</h2>
+                <button class="btn" onclick="loadContract()">Load Contract</button>
+                <button class="btn secondary" onclick="checkContractStatus()">Check Status</button>
+                <div id="contractStatus"></div>
+            </div>
+        </div>
+
+        <!-- Create Project Section -->
+        <div class="card">
+            <h2>🏗️ Create Construction Project</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label for="projectName">Project Name:</label>
+                    <input type="text" id="projectName" placeholder="Enter project name" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="projectBudget" class="tooltip" data-tooltip="Maximum budget in ETH for this project">Project Budget (ETH):</label>
+                    <input type="number" id="projectBudget" step="0.001" min="0.001" placeholder="Enter maximum budget in ETH">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="projectDescription">Project Description:</label>
+                <textarea id="projectDescription" rows="4" placeholder="Describe the construction project requirements, specifications, and expectations" maxlength="500"></textarea>
+            </div>
+            <div class="grid">
+                <div class="form-group">
+                    <label for="projectDeadline" class="tooltip" data-tooltip="Final completion deadline for the project">Project Completion Deadline:</label>
+                    <input type="datetime-local" id="projectDeadline">
+                </div>
+                <div class="form-group">
+                    <label for="biddingDuration" class="tooltip" data-tooltip="How long bidding will remain open">Bidding Duration (Hours):</label>
+                    <input type="number" id="biddingDuration" min="1" max="168" placeholder="Hours for bidding period">
+                </div>
+            </div>
+            <button class="btn" onclick="createProject()">Create Project</button>
+        </div>
+
+        <!-- Submit Bid Section -->
+        <div class="card">
+            <h2>💰 Submit Confidential Bid</h2>
+            <div style="background: #f0f8ff; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #b6d7ff;">
+                <strong>🔒 Privacy Notice:</strong> Your bid amount and completion time are encrypted using FHE technology. Only you and the project creator can see the actual values during evaluation.
+            </div>
+            <div class="grid">
+                <div class="form-group">
+                    <label for="bidProjectId">Project ID:</label>
+                    <input type="number" id="bidProjectId" min="1" placeholder="Enter project ID">
+                </div>
+                <div class="form-group">
+                    <label for="bidAmount" class="tooltip" data-tooltip="Your bid amount will be encrypted">Your Bid Amount (ETH):</label>
+                    <input type="number" id="bidAmount" step="0.001" min="0.001" placeholder="Enter your bid amount">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="completionTime" class="tooltip" data-tooltip="Estimated days to complete the project">Completion Time (Days):</label>
+                <input type="number" id="completionTime" min="1" placeholder="Days to complete the project">
+            </div>
+            <div class="form-group">
+                <label for="publicProposal">Public Proposal:</label>
+                <textarea id="publicProposal" rows="6" placeholder="Describe your approach, qualifications, experience, and why you're the best choice for this project. This information will be publicly visible." maxlength="1000"></textarea>
+            </div>
+            <button class="btn" onclick="submitBid()">Submit Confidential Bid</button>
+        </div>
+
+        <!-- Contractor Management -->
+        <div class="card">
+            <h2>👷 Contractor Management</h2>
+            <div class="status warning">
+                <strong>Note:</strong> Only contract owner can authorize contractors. Contractors must be authorized before they can submit bids.
+            </div>
+            <div class="form-group">
+                <label for="contractorAddress">Contractor Wallet Address:</label>
+                <input type="text" id="contractorAddress" placeholder="Enter contractor wallet address (0x...)">
+            </div>
+            <div>
+                <button class="btn" onclick="authorizeContractor()">Authorize Contractor</button>
+                <button class="btn danger" onclick="revokeContractor()">Revoke Authorization</button>
+                <button class="btn secondary" onclick="checkContractorStatus()">Check Status</button>
+            </div>
+            <div id="contractorStatus"></div>
+        </div>
+
+        <!-- Projects List -->
+        <div class="card">
+            <h2>📋 All Projects</h2>
+            <div style="margin-bottom: 20px;">
+                <button class="btn" onclick="loadProjects()">Refresh Projects</button>
+                <button class="btn secondary" onclick="loadMyProjects()">My Projects</button>
+                <button class="btn secondary" onclick="loadMyBids()">My Bids</button>
+            </div>
+            <div id="projectsList" class="loading">
+                <div class="spinner"></div>
+                Loading projects from blockchain...
+            </div>
+        </div>
+
+        <!-- Project Management -->
+        <div class="card">
+            <h2>🎯 Project Management</h2>
+            <div class="status info">
+                <strong>Instructions:</strong> Enter a project ID to manage the project. Only project creators can close bidding and evaluate bids.
+            </div>
+            <div class="form-group">
+                <label for="manageProjectId">Project ID:</label>
+                <input type="number" id="manageProjectId" min="1" placeholder="Enter project ID">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button class="btn" onclick="getProjectInfo()">View Details</button>
+                <button class="btn secondary" onclick="getProjectBidders()">View Bidders</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button class="btn" onclick="closeBidding()">Close Bidding</button>
+                <button class="btn" onclick="evaluateBids()">Evaluate & Select Winner</button>
+            </div>
+            <div id="managementResult"></div>
+        </div>
+    </div>
+
+    <!-- Load ethers.js from multiple CDN sources with fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"
+            onerror="this.onerror=null;this.src='https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js';"
+            onload="console.log('Ethers.js loaded successfully');"></script>
+
+    <!-- Fallback check -->
+    <script>
+        if (typeof ethers === 'undefined') {
+            console.error('Failed to load ethers.js from CDN');
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
+                    <h2 style="color: #e53e3e;">⚠️ Loading Error</h2>
+                    <p>Failed to load required libraries. Please check your internet connection and refresh the page.</p>
+                    <p>If the problem persists, try accessing the site from a different network.</p>
+                    <button onclick="window.location.reload()" style="padding: 10px 20px; margin-top: 20px; cursor: pointer;">Refresh Page</button>
+                </div>
+            `;
+        }
+    </script>
+
+    <script>
+        // Global variables
+        let provider;
+        let signer;
+        let contract;
+        let userAccount;
+
+        // Contract configuration
+        const CONTRACT_ADDRESS = '0xc38328233d44dF9C3e9C60f6bA7C0eDAbD3F632a';
+
+        // Contract ABI - Privacy Construction Bidding
+        const CONTRACT_ABI = [
+            "function owner() view returns (address)",
+            "function projectCounter() view returns (uint32)",
+            "function currentEvaluationProject() view returns (uint32)",
+            "function authorizeContractor(address _contractor)",
+            "function revokeContractor(address _contractor)",
+            "function createProject(string _name, string _description, uint256 _budget, uint256 _deadline, uint256 _biddingDuration) returns (uint32)",
+            "function submitBid(uint32 _projectId, uint64 _bidAmount, uint32 _completionTimeInDays, string _publicProposal)",
+            "function closeBidding(uint32 _projectId)",
+            "function evaluateBids(uint32 _projectId)",
+            "function getProjectInfo(uint32 _projectId) view returns (string, string, uint256, uint256, address, bool, bool, uint256, uint256, address, uint256)",
+            "function getBidStatus(uint32 _projectId, address _bidder) view returns (bool, string, uint256)",
+            "function getProjectBidders(uint32 _projectId) view returns (address[])",
+            "function isContractorAuthorized(address _contractor) view returns (bool)",
+            "function getCurrentTime() view returns (uint256)",
+            "event ProjectCreated(uint32 indexed projectId, string name, address creator, uint256 budget)",
+            "event BidSubmitted(uint32 indexed projectId, address indexed bidder)",
+            "event BiddingClosed(uint32 indexed projectId)",
+            "event WinnerSelected(uint32 indexed projectId, address indexed winner, uint256 amount)",
+            "event ContractorAuthorized(address contractor)",
+            "event ContractorRevoked(address contractor)"
+        ];
+
+        // Initialize app
+        window.addEventListener('load', async () => {
+            // Wait a moment for ethers.js to load
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Check if ethers is available
+            if (typeof ethers === 'undefined') {
+                console.error('Ethers.js not loaded');
+                showStatus('Failed to load blockchain libraries. Please refresh the page.', 'error');
+                return;
+            }
+
+            // Set minimum datetime for project deadline (current time + 1 hour)
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+            document.getElementById('projectDeadline').min = now.toISOString().slice(0, 16);
+
+            // Show connection status initially
+            updateConnectionStatus(false);
+
+            // Check if wallet is already connected
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        await connectWallet();
+                    }
+                } catch (error) {
+                    console.log('Error checking existing connection:', error);
+                    showStatus('Error checking wallet connection. Please connect manually.', 'warning');
+                }
+            } else {
+                showStatus('MetaMask not detected. Please install MetaMask wallet.', 'warning');
+            }
+
+            // Listen for account changes
+            if (window.ethereum) {
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length > 0) {
+                        connectWallet();
+                    } else {
+                        updateConnectionStatus(false);
+                        showStatus('Wallet disconnected', 'warning');
+                    }
+                });
+
+                window.ethereum.on('chainChanged', () => {
+                    showStatus('Network changed. Reloading...', 'info');
+                    setTimeout(() => window.location.reload(), 1000);
+                });
+
+                window.ethereum.on('connect', (connectInfo) => {
+                    console.log('Wallet connected:', connectInfo);
+                });
+
+                window.ethereum.on('disconnect', (error) => {
+                    console.log('Wallet disconnected:', error);
+                    updateConnectionStatus(false);
+                });
+            }
+
+            console.log('Application initialized successfully');
+        });
+
+        // Wallet connection
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showStatus('Please install MetaMask wallet!', 'error');
+                    return false;
+                }
+
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                userAccount = await signer.getAddress();
+
+                const network = await provider.getNetwork();
+                const balance = await provider.getBalance(userAccount);
+
+                document.getElementById('accountAddress').textContent =
+                    userAccount.substring(0, 6) + '...' + userAccount.substring(38);
+                document.getElementById('networkName').textContent = network.name;
+                document.getElementById('accountBalance').textContent =
+                    parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
+                document.getElementById('walletInfo').classList.remove('hidden');
+
+                updateConnectionStatus(true);
+
+                // Auto-load contract
+                await loadContract();
+
+                showStatus('Wallet connected successfully!', 'success');
+                return true;
+            } catch (error) {
+                showStatus('Failed to connect wallet: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // Update connection status indicator
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connectionStatus');
+            if (connected) {
+                statusElement.innerHTML = '<span class="connected">🟢 Wallet Connected</span>';
+            } else {
+                statusElement.innerHTML = '<span class="disconnected">🔴 Wallet Disconnected</span>';
+            }
+        }
+
+        // Load smart contract
+        async function loadContract() {
+            try {
+                if (!signer) {
+                    showStatus('Please connect wallet first', 'error');
+                    return false;
+                }
+
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+                // Test contract connection with timeout
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Contract connection timeout')), 10000)
+                );
+
+                const contractPromise = Promise.all([
+                    contract.owner(),
+                    contract.projectCounter()
+                ]);
+
+                const [owner, projectCounter] = await Promise.race([contractPromise, timeoutPromise]);
+
+                showStatus(`Contract loaded successfully! Projects: ${Number(projectCounter.toString())}`, 'success');
+
+                // Auto-load projects
+                await loadProjects();
+
+                return true;
+            } catch (error) {
+                let errorMessage = 'Failed to load contract: ';
+
+                if (error.message.includes('timeout')) {
+                    errorMessage += 'Connection timeout. Please check your network and try again.';
+                } else if (error.message.includes('network')) {
+                    errorMessage += 'Network error. Please check your connection and try again.';
+                } else if (error.message.includes('call revert')) {
+                    errorMessage += 'Contract not found at this address. Please verify the contract address.';
+                } else {
+                    errorMessage += error.message;
+                }
+
+                showStatus(errorMessage, 'error');
+                return false;
+            }
+        }
+
+        // Check contract status
+        async function checkContractStatus() {
+            try {
+                if (!contract) {
+                    await loadContract();
+                    return;
+                }
+
+                const owner = await contract.owner();
+                const projectCounter = await contract.projectCounter();
+                const currentTime = await contract.getCurrentTime();
+
+                const statusHtml = `
+                    <div class="status info">
+                        <h4>Contract Information</h4>
+                        <p><strong>Owner:</strong> ${owner}</p>
+                        <p><strong>Total Projects:</strong> ${Number(projectCounter.toString())}</p>
+                        <p><strong>Contract Time:</strong> ${new Date(Number(currentTime.toString()) * 1000).toLocaleString()}</p>
+                        <p><strong>Your Address:</strong> ${userAccount}</p>
+                        <p><strong>You are Owner:</strong> ${owner.toLowerCase() === userAccount.toLowerCase() ? 'Yes' : 'No'}</p>
+                    </div>
+                `;
+
+                document.getElementById('contractStatus').innerHTML = statusHtml;
+            } catch (error) {
+                showStatus('Failed to check contract status: ' + error.message, 'error');
+            }
+        }
+
+        // Create new project
+        async function createProject() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const name = document.getElementById('projectName').value.trim();
+                const description = document.getElementById('projectDescription').value.trim();
+                const budget = document.getElementById('projectBudget').value;
+                const deadline = document.getElementById('projectDeadline').value;
+                const biddingDuration = document.getElementById('biddingDuration').value;
+
+                // Validation
+                if (!name || name.length < 3) {
+                    showStatus('Project name must be at least 3 characters', 'error');
+                    return;
+                }
+                if (!description || description.length < 10) {
+                    showStatus('Project description must be at least 10 characters', 'error');
+                    return;
+                }
+                if (!budget || parseFloat(budget) <= 0) {
+                    showStatus('Please enter a valid budget amount', 'error');
+                    return;
+                }
+                if (!deadline) {
+                    showStatus('Please select a project deadline', 'error');
+                    return;
+                }
+                if (!biddingDuration || parseInt(biddingDuration) < 1) {
+                    showStatus('Bidding duration must be at least 1 hour', 'error');
+                    return;
+                }
+
+                const budgetWei = ethers.utils.parseEther(budget);
+                const deadlineTimestamp = Math.floor(new Date(deadline).getTime() / 1000);
+                const biddingDurationSeconds = parseInt(biddingDuration) * 3600; // hours to seconds
+
+                // Check if deadline is in future
+                const now = Math.floor(Date.now() / 1000);
+                if (deadlineTimestamp <= now) {
+                    showStatus('Project deadline must be in the future', 'error');
+                    return;
+                }
+
+                showStatus('Creating project... Please confirm transaction', 'info');
+
+                const tx = await contract.createProject(
+                    name,
+                    description,
+                    budgetWei,
+                    deadlineTimestamp,
+                    biddingDurationSeconds
+                );
+
+                showStatus('Transaction sent. Waiting for confirmation...', 'info');
+                const receipt = await tx.wait();
+
+                // Get project ID from event
+                const event = receipt.events.find(event => event.event === 'ProjectCreated');
+                const projectId = event ? event.args.projectId.toString() : 'Unknown';
+
+                showStatus(`Project created successfully! Project ID: ${projectId}`, 'success');
+
+                // Clear form
+                document.getElementById('projectName').value = '';
+                document.getElementById('projectDescription').value = '';
+                document.getElementById('projectBudget').value = '';
+                document.getElementById('projectDeadline').value = '';
+                document.getElementById('biddingDuration').value = '';
+
+                // Reload projects
+                await loadProjects();
+            } catch (error) {
+                showStatus('Failed to create project: ' + error.message, 'error');
+            }
+        }
+
+        // Submit encrypted bid
+        async function submitBid() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const projectId = document.getElementById('bidProjectId').value;
+                const bidAmount = document.getElementById('bidAmount').value;
+                const completionTime = document.getElementById('completionTime').value;
+                const publicProposal = document.getElementById('publicProposal').value.trim();
+
+                // Validation
+                if (!projectId || parseInt(projectId) < 1) {
+                    showStatus('Please enter a valid project ID', 'error');
+                    return;
+                }
+                if (!bidAmount || parseFloat(bidAmount) <= 0) {
+                    showStatus('Please enter a valid bid amount', 'error');
+                    return;
+                }
+                if (!completionTime || parseInt(completionTime) < 1) {
+                    showStatus('Completion time must be at least 1 day', 'error');
+                    return;
+                }
+                if (!publicProposal || publicProposal.length < 20) {
+                    showStatus('Public proposal must be at least 20 characters', 'error');
+                    return;
+                }
+
+                // Check if user is authorized contractor
+                const isAuthorized = await contract.isContractorAuthorized(userAccount);
+                if (!isAuthorized) {
+                    showStatus('You must be an authorized contractor to submit bids', 'error');
+                    return;
+                }
+
+                // Check if project exists and bidding is active
+                try {
+                    const projectInfo = await contract.getProjectInfo(projectId);
+                    if (!projectInfo[5]) { // isActive
+                        showStatus('Project is not active', 'error');
+                        return;
+                    }
+                    if (projectInfo[6]) { // biddingClosed
+                        showStatus('Bidding is already closed for this project', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    showStatus('Project does not exist', 'error');
+                    return;
+                }
+
+                // Convert bid amount to wei equivalent for euint64
+                const bidAmountWei = Math.floor(parseFloat(bidAmount) * 1e18);
+
+                showStatus('Submitting encrypted bid... Please confirm transaction', 'info');
+
+                const tx = await contract.submitBid(
+                    projectId,
+                    bidAmountWei,
+                    parseInt(completionTime),
+                    publicProposal
+                );
+
+                showStatus('Transaction sent. Waiting for confirmation...', 'info');
+                await tx.wait();
+
+                showStatus('Bid submitted successfully! Your bid amount is encrypted and confidential.', 'success');
+
+                // Clear form
+                document.getElementById('bidProjectId').value = '';
+                document.getElementById('bidAmount').value = '';
+                document.getElementById('completionTime').value = '';
+                document.getElementById('publicProposal').value = '';
+
+                // Reload projects
+                await loadProjects();
+            } catch (error) {
+                showStatus('Failed to submit bid: ' + error.message, 'error');
+            }
+        }
+
+        // Contractor management functions
+        async function authorizeContractor() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const contractorAddress = document.getElementById('contractorAddress').value.trim();
+                if (!contractorAddress || !ethers.utils.isAddress(contractorAddress)) {
+                    showStatus('Please enter a valid contractor address', 'error');
+                    return;
+                }
+
+                showStatus('Authorizing contractor... Please confirm transaction', 'info');
+                const tx = await contract.authorizeContractor(contractorAddress);
+                showStatus('Transaction sent. Waiting for confirmation...', 'info');
+                await tx.wait();
+
+                showStatus('Contractor authorized successfully!', 'success');
+                document.getElementById('contractorAddress').value = '';
+            } catch (error) {
+                showStatus('Failed to authorize contractor: ' + error.message, 'error');
+            }
+        }
+
+        async function revokeContractor() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const contractorAddress = document.getElementById('contractorAddress').value.trim();
+                if (!contractorAddress || !ethers.utils.isAddress(contractorAddress)) {
+                    showStatus('Please enter a valid contractor address', 'error');
+                    return;
+                }
+
+                showStatus('Revoking contractor authorization... Please confirm transaction', 'info');
+                const tx = await contract.revokeContractor(contractorAddress);
+                showStatus('Transaction sent. Waiting for confirmation...', 'info');
+                await tx.wait();
+
+                showStatus('Contractor authorization revoked successfully!', 'success');
+                document.getElementById('contractorAddress').value = '';
+            } catch (error) {
+                showStatus('Failed to revoke contractor authorization: ' + error.message, 'error');
+            }
+        }
+
+        async function checkContractorStatus() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                let contractorAddress = document.getElementById('contractorAddress').value.trim();
+                if (!contractorAddress) {
+                    contractorAddress = userAccount;
+                }
+
+                if (!ethers.utils.isAddress(contractorAddress)) {
+                    showStatus('Please enter a valid contractor address', 'error');
+                    return;
+                }
+
+                const isAuthorized = await contract.isContractorAuthorized(contractorAddress);
+                const statusText = isAuthorized ? 'Authorized ✅' : 'Not Authorized ❌';
+                const statusClass = isAuthorized ? 'success' : 'error';
+
+                const displayAddress = contractorAddress === userAccount ?
+                    'Your address' :
+                    contractorAddress.substring(0, 6) + '...' + contractorAddress.substring(38);
+
+                document.getElementById('contractorStatus').innerHTML =
+                    `<div class="status ${statusClass}"><strong>${displayAddress}:</strong> ${statusText}</div>`;
+            } catch (error) {
+                showStatus('Failed to check contractor status: ' + error.message, 'error');
+            }
+        }
+
+        // Load all projects
+        async function loadProjects() {
+            try {
+                if (!contract) {
+                    document.getElementById('projectsList').innerHTML =
+                        '<div class="status error">Please connect wallet and load contract first</div>';
+                    return;
+                }
+
+                document.getElementById('projectsList').innerHTML =
+                    '<div class="loading"><div class="spinner"></div>Loading projects from blockchain...</div>';
+
+                const projectCounter = await contract.projectCounter();
+                const projectCount = Number(projectCounter.toString());
+
+                if (projectCount === 0) {
+                    document.getElementById('projectsList').innerHTML =
+                        '<div class="status info">No projects found. Create the first project!</div>';
+                    return;
+                }
+
+                let projectsHtml = '';
+
+                for (let i = 1; i <= projectCount; i++) {
+                    try {
+                        const projectInfo = await contract.getProjectInfo(i);
+                        const [name, description, budget, deadline, creator, isActive, biddingClosed, biddingEndTime, bidderCount, winningBidder, winningAmount] = projectInfo;
+
+                        const budgetEth = ethers.utils.formatEther(budget);
+                        const deadlineDate = new Date(Number(deadline.toString()) * 1000).toLocaleString();
+                        const biddingEndDate = new Date(Number(biddingEndTime.toString()) * 1000).toLocaleString();
+                        const now = Date.now();
+                        const biddingExpired = now > (Number(biddingEndTime.toString()) * 1000);
+
+                        let statusBadge = '';
+                        if (winningBidder !== ethers.constants.AddressZero) {
+                            statusBadge = '<span class="badge ended">Winner Selected</span>';
+                        } else if (biddingClosed || biddingExpired) {
+                            statusBadge = '<span class="badge closed">Bidding Closed</span>';
+                        } else if (isActive) {
+                            statusBadge = '<span class="badge active">Bidding Open</span>';
+                        }
+
+                        const isMyProject = creator.toLowerCase() === userAccount.toLowerCase();
+                        const myBadge = isMyProject ? '<span class="badge" style="background: #e6f3ff; color: #0066cc;">My Project</span>' : '';
+
+                        projectsHtml += `
+                            <div class="project-item">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                                    <h3>Project #${i}: ${name}</h3>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        ${statusBadge}
+                                        ${myBadge}
+                                    </div>
+                                </div>
+                                <p style="margin-bottom: 20px; color: #4a5568; line-height: 1.6;">${description}</p>
+                                <div class="project-meta">
+                                    <div class="meta-item">
+                                        <div class="meta-label">Max Budget</div>
+                                        <div class="meta-value">${budgetEth} ETH</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Completion Deadline</div>
+                                        <div class="meta-value" style="font-size: 13px;">${deadlineDate}</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Bidding Ends</div>
+                                        <div class="meta-value" style="font-size: 13px;">${biddingEndDate}</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Total Bidders</div>
+                                        <div class="meta-value">${Number(bidderCount.toString())}</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Project Creator</div>
+                                        <div class="meta-value" style="font-size: 11px;">${creator.substring(0, 6) + '...' + creator.substring(38)}</div>
+                                    </div>
+                                    ${winningBidder !== ethers.constants.AddressZero ? `
+                                    <div class="meta-item">
+                                        <div class="meta-label">Winner</div>
+                                        <div class="meta-value" style="font-size: 11px;">${winningBidder.substring(0, 6) + '...' + winningBidder.substring(38)}</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Winning Bid</div>
+                                        <div class="meta-value">${ethers.utils.formatEther(winningAmount)} ETH</div>
+                                    </div>` : ''}
+                                </div>
+                                ${!biddingClosed && !biddingExpired && isActive ? `
+                                <div style="margin-top: 16px; padding: 12px; background: #f0f8ff; border-radius: 8px; border: 1px solid #b6d7ff;">
+                                    <strong>📢 Bidding Open!</strong> Submit your encrypted bid for this project.
+                                </div>` : ''}
+                            </div>
+                        `;
+                    } catch (error) {
+                        console.error(`Error loading project ${i}:`, error);
+                    }
+                }
+
+                document.getElementById('projectsList').innerHTML = projectsHtml ||
+                    '<div class="status info">No projects found</div>';
+            } catch (error) {
+                document.getElementById('projectsList').innerHTML =
+                    '<div class="status error">Failed to load projects: ' + error.message + '</div>';
+            }
+        }
+
+        // Load user's projects
+        async function loadMyProjects() {
+            try {
+                await loadProjects(); // Load all projects first
+
+                // Filter to show only user's projects
+                const projectItems = document.querySelectorAll('.project-item');
+                let hasMyProjects = false;
+
+                projectItems.forEach(item => {
+                    const creatorElement = item.querySelector('.meta-value');
+                    if (item.innerHTML.includes('My Project')) {
+                        hasMyProjects = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                if (!hasMyProjects) {
+                    document.getElementById('projectsList').innerHTML =
+                        '<div class="status info">You have not created any projects yet.</div>';
+                }
+            } catch (error) {
+                showStatus('Failed to load your projects: ' + error.message, 'error');
+            }
+        }
+
+        // Load user's bids
+        async function loadMyBids() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                document.getElementById('projectsList').innerHTML =
+                    '<div class="loading"><div class="spinner"></div>Loading your bids...</div>';
+
+                const projectCounter = await contract.projectCounter();
+                const projectCount = Number(projectCounter.toString());
+                let myBidsHtml = '';
+                let hasBids = false;
+
+                for (let i = 1; i <= projectCount; i++) {
+                    try {
+                        const bidStatus = await contract.getBidStatus(i, userAccount);
+
+                        if (bidStatus[0]) { // has submitted bid
+                            hasBids = true;
+                            const projectInfo = await contract.getProjectInfo(i);
+                            const [name, description, budget, deadline, creator, isActive, biddingClosed, biddingEndTime, bidderCount, winningBidder, winningAmount] = projectInfo;
+
+                            const budgetEth = ethers.utils.formatEther(budget);
+                            const bidTimestamp = new Date(Number(bidStatus[2].toString()) * 1000).toLocaleString();
+
+                            let statusBadge = '';
+                            let isWinner = false;
+
+                            if (winningBidder !== ethers.constants.AddressZero) {
+                                isWinner = winningBidder.toLowerCase() === userAccount.toLowerCase();
+                                statusBadge = isWinner ?
+                                    '<span class="badge" style="background: #d4ff8a; color: #2d5016;">🏆 You Won!</span>' :
+                                    '<span class="badge ended">Not Selected</span>';
+                            } else if (biddingClosed) {
+                                statusBadge = '<span class="badge closed">Under Evaluation</span>';
+                            } else {
+                                statusBadge = '<span class="badge active">Bid Submitted</span>';
+                            }
+
+                            myBidsHtml += `
+                                <div class="project-item">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                                        <h3>Project #${i}: ${name}</h3>
+                                        ${statusBadge}
+                                    </div>
+                                    <p style="margin-bottom: 20px; color: #4a5568; line-height: 1.6;">${description}</p>
+                                    <div class="project-meta">
+                                        <div class="meta-item">
+                                            <div class="meta-label">Project Budget</div>
+                                            <div class="meta-value">${budgetEth} ETH</div>
+                                        </div>
+                                        <div class="meta-item">
+                                            <div class="meta-label">Bid Submitted</div>
+                                            <div class="meta-value" style="font-size: 13px;">${bidTimestamp}</div>
+                                        </div>
+                                        <div class="meta-item">
+                                            <div class="meta-label">Total Bidders</div>
+                                            <div class="meta-value">${Number(bidderCount.toString())}</div>
+                                        </div>
+                                        ${isWinner ? `
+                                        <div class="meta-item">
+                                            <div class="meta-label">Your Winning Bid</div>
+                                            <div class="meta-value">${ethers.utils.formatEther(winningAmount)} ETH</div>
+                                        </div>` : ''}
+                                    </div>
+                                    <div style="margin-top: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #5a67d8;">
+                                        <div class="meta-label">Your Public Proposal</div>
+                                        <p style="margin-top: 8px; line-height: 1.5;">${bidStatus[1]}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    } catch (error) {
+                        console.error(`Error checking bid for project ${i}:`, error);
+                    }
+                }
+
+                if (!hasBids) {
+                    document.getElementById('projectsList').innerHTML =
+                        '<div class="status info">You have not submitted any bids yet.</div>';
+                } else {
+                    document.getElementById('projectsList').innerHTML = myBidsHtml;
+                }
+            } catch (error) {
+                document.getElementById('projectsList').innerHTML =
+                    '<div class="status error">Failed to load your bids: ' + error.message + '</div>';
+            }
+        }
+
+        // Project management functions
+        async function closeBidding() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const projectId = document.getElementById('manageProjectId').value;
+                if (!projectId || parseInt(projectId) < 1) {
+                    showStatus('Please enter a valid project ID', 'error');
+                    return;
+                }
+
+                showStatus('Closing bidding... Please confirm transaction', 'info');
+                const tx = await contract.closeBidding(projectId);
+                showStatus('Transaction sent. Waiting for confirmation...', 'info');
+                await tx.wait();
+
+                showStatus('Bidding closed successfully! You can now evaluate bids.', 'success');
+                await loadProjects();
+            } catch (error) {
+                showStatus('Failed to close bidding: ' + error.message, 'error');
+            }
+        }
+
+        async function evaluateBids() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const projectId = document.getElementById('manageProjectId').value;
+                if (!projectId || parseInt(projectId) < 1) {
+                    showStatus('Please enter a valid project ID', 'error');
+                    return;
+                }
+
+                showStatus('Starting bid evaluation (FHE decryption in progress)... Please confirm transaction', 'info');
+                const tx = await contract.evaluateBids(projectId);
+                showStatus('Transaction sent. Waiting for confirmation...', 'info');
+                await tx.wait();
+
+                showStatus('Bid evaluation initiated! The winner will be selected based on encrypted bids. This process may take a few moments.', 'success');
+
+                // Refresh projects after a delay to show updated status
+                setTimeout(async () => {
+                    await loadProjects();
+                    await getProjectInfo(); // Refresh project details
+                }, 5000);
+            } catch (error) {
+                showStatus('Failed to evaluate bids: ' + error.message, 'error');
+            }
+        }
+
+        async function getProjectInfo() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const projectId = document.getElementById('manageProjectId').value;
+                if (!projectId || parseInt(projectId) < 1) {
+                    showStatus('Please enter a valid project ID', 'error');
+                    return;
+                }
+
+                const projectInfo = await contract.getProjectInfo(projectId);
+                const [name, description, budget, deadline, creator, isActive, biddingClosed, biddingEndTime, bidderCount, winningBidder, winningAmount] = projectInfo;
+
+                const budgetEth = ethers.utils.formatEther(budget);
+                const deadlineDate = new Date(Number(deadline.toString()) * 1000).toLocaleString();
+                const biddingEndDate = new Date(Number(biddingEndTime.toString()) * 1000).toLocaleString();
+                const now = Date.now();
+                const biddingExpired = now > (Number(biddingEndTime.toString()) * 1000);
+
+                let resultHtml = `
+                    <div class="status info">
+                        <h4>Project #${projectId}: ${name}</h4>
+                        <p><strong>Description:</strong> ${description}</p>
+                        <div style="margin: 16px 0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div>
+                                    <div class="meta-label">Max Budget</div>
+                                    <div style="font-weight: 600;">${budgetEth} ETH</div>
+                                </div>
+                                <div>
+                                    <div class="meta-label">Completion Deadline</div>
+                                    <div style="font-weight: 600; font-size: 13px;">${deadlineDate}</div>
+                                </div>
+                                <div>
+                                    <div class="meta-label">Bidding Ends</div>
+                                    <div style="font-weight: 600; font-size: 13px;">${biddingEndDate}</div>
+                                </div>
+                                <div>
+                                    <div class="meta-label">Total Bidders</div>
+                                    <div style="font-weight: 600;">${Number(bidderCount.toString())}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><strong>Project Creator:</strong> ${creator}</p>
+                        <p><strong>Status:</strong> ${isActive ? 'Active' : 'Inactive'}</p>
+                        <p><strong>Bidding Status:</strong> ${biddingClosed || biddingExpired ? 'Closed' : 'Open'}</p>
+                        <p><strong>Your Permissions:</strong> ${creator.toLowerCase() === userAccount.toLowerCase() ? 'Owner (can manage)' : 'Viewer only'}</p>
+                `;
+
+                if (winningBidder !== ethers.constants.AddressZero) {
+                    resultHtml += `
+                        <div style="margin-top: 16px; padding: 16px; background: #d4ff8a; border-radius: 8px;">
+                            <h5 style="color: #2d5016; margin-bottom: 8px;">🏆 Winner Selected!</h5>
+                            <p><strong>Winning Contractor:</strong> ${winningBidder}</p>
+                            <p><strong>Winning Bid Amount:</strong> ${ethers.utils.formatEther(winningAmount)} ETH</p>
+                        </div>
+                    `;
+                }
+
+                resultHtml += '</div>';
+                document.getElementById('managementResult').innerHTML = resultHtml;
+            } catch (error) {
+                if (error.message.includes('Project does not exist')) {
+                    showStatus('Project does not exist', 'error');
+                } else {
+                    showStatus('Failed to get project info: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function getProjectBidders() {
+            try {
+                if (!contract) {
+                    showStatus('Please connect wallet and load contract first', 'error');
+                    return;
+                }
+
+                const projectId = document.getElementById('manageProjectId').value;
+                if (!projectId || parseInt(projectId) < 1) {
+                    showStatus('Please enter a valid project ID', 'error');
+                    return;
+                }
+
+                const bidders = await contract.getProjectBidders(projectId);
+
+                if (bidders.length === 0) {
+                    document.getElementById('managementResult').innerHTML =
+                        '<div class="status info">No bidders for this project yet.</div>';
+                    return;
+                }
+
+                let biddersHtml = `
+                    <div class="status info">
+                        <h4>Bidders for Project #${projectId}</h4>
+                        <p><strong>Total Bidders:</strong> ${bidders.length}</p>
+                        <div style="margin-top: 16px;">
+                `;
+
+                for (let i = 0; i < bidders.length; i++) {
+                    try {
+                        const bidder = bidders[i];
+                        const bidStatus = await contract.getBidStatus(projectId, bidder);
+                        const bidTimestamp = new Date(Number(bidStatus[2].toString()) * 1000).toLocaleString();
+
+                        biddersHtml += `
+                            <div style="margin-bottom: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #5a67d8;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <strong>Bidder ${i + 1}:</strong>
+                                    <span style="font-size: 12px; color: #718096;">${bidTimestamp}</span>
+                                </div>
+                                <div style="font-family: monospace; font-size: 13px; color: #4a5568; margin-bottom: 8px;">
+                                    ${bidder}
+                                </div>
+                                <div>
+                                    <div class="meta-label">Public Proposal</div>
+                                    <p style="margin-top: 4px; line-height: 1.5;">${bidStatus[1]}</p>
+                                </div>
+                            </div>
+                        `;
+                    } catch (error) {
+                        console.error(`Error loading bidder ${bidders[i]}:`, error);
+                    }
+                }
+
+                biddersHtml += '</div></div>';
+                document.getElementById('managementResult').innerHTML = biddersHtml;
+            } catch (error) {
+                showStatus('Failed to get project bidders: ' + error.message, 'error');
+            }
+        }
+
+        // Utility functions
+        function showStatus(message, type) {
+            // Create or update a global status element
+            let statusElement = document.getElementById('globalStatus');
+            if (!statusElement) {
+                statusElement = document.createElement('div');
+                statusElement.id = 'globalStatus';
+                statusElement.style.position = 'fixed';
+                statusElement.style.top = '80px';
+                statusElement.style.right = '20px';
+                statusElement.style.zIndex = '1001';
+                statusElement.style.maxWidth = '400px';
+                document.body.appendChild(statusElement);
+            }
+
+            statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
+
+            // Auto-hide after 8 seconds for success/info, 12 seconds for errors
+            const delay = type === 'error' ? 12000 : 8000;
+            setTimeout(() => {
+                if (statusElement && statusElement.innerHTML.includes(message)) {
+                    statusElement.innerHTML = '';
+                }
+            }, delay);
+        }
+
+        // Format address for display
+        function formatAddress(address) {
+            if (!address) return '';
+            return address.substring(0, 6) + '...' + address.substring(38);
+        }
+
+        // Format time for display
+        function formatTime(timestamp) {
+            return new Date(timestamp * 1000).toLocaleString();
+        }
+    </script>
+</body>
+</html>
